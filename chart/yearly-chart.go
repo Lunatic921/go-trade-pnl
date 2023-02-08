@@ -1,7 +1,7 @@
 package chart
 
 import (
-	"go-learn-pl/trading"
+	"go-trade-pnl/trading"
 	"io"
 	"time"
 )

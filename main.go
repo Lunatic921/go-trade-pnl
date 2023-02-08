@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"go-learn-pl/chart"
-	"go-learn-pl/server"
-	"go-learn-pl/trading"
+	"go-trade-pnl/chart"
+	"go-trade-pnl/server"
+	"go-trade-pnl/trading"
 	"time"
 )
 
@@ -14,12 +14,6 @@ func main() {
 	flag.Parse()
 
 	p := trading.NewPortfolio(*historyFilePathPtr)
-
-	for _, trade := range p.Trades {
-		fmt.Println("Ticker: ", trade.Ticker)
-		fmt.Println("Profit: ", fmt.Sprintf("%.2f", trade.GetProfit()))
-		fmt.Println("----------------------")
-	}
 
 	tradingDays := p.GetTradingDays()
 
@@ -43,7 +37,6 @@ func main() {
 	yearAfterLastYear := time.Date(tradingDays[len(tradingDays)-1].Year()+1, 1, 1, 0, 0, 0, 0, loc)
 
 	for currYear := firstYear; currYear.Before(yearAfterLastYear); currYear = currYear.AddDate(1, 0, 0) {
-		fmt.Println("Year:", currYear.Year())
 		yearlyChart := &chart.YearlyChart{Year: currYear, Portfolio: p}
 		srv := server.TradePage{Chart: yearlyChart}
 		srv.CreatePath(fmt.Sprintf("/%s", currYear.Format("2006")), yearlyChart)

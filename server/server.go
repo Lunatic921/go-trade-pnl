@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"go-learn-pl/chart"
+	"go-trade-pnl/chart"
 	"net/http"
 )
 

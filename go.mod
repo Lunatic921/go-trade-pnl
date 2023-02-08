@@ -1,4 +1,4 @@
-module go-learn-pl
+module go-trade-pnl
 
 go 1.20
 

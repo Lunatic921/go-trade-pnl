@@ -1,8 +1,7 @@
 package chart
 
 import (
-	"fmt"
-	"go-learn-pl/trading"
+	"go-trade-pnl/trading"
 	"io"
 	"time"
 
@@ -19,8 +18,6 @@ type IntradayChart struct {
 func (c *IntradayChart) Draw(w io.Writer) error {
 
 	trades := c.Portfolio.GetTradesByDay(c.Day)
-
-	fmt.Println(trades)
 
 	tradeTimeAxisData := make([]string, len(trades), len(trades))
 	for i, trade := range trades {
