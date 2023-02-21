@@ -37,13 +37,14 @@ func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
 			}
 		} else {
 			if startIdx != -1 {
-				endIdx = i - 1
+				endIdx = i
+				break
 			}
 		}
 	}
 
 	if startIdx != -1 && endIdx == -1 {
-		endIdx = len(p.Trades) - 1
+		endIdx = len(p.Trades)
 	}
 
 	return p.Trades[startIdx:endIdx]
