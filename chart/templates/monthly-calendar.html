@@ -1,0 +1,87 @@
+<style>
+    .calendar {
+        display: flex;
+        flex-wrap: wrap;
+        width: 750px;
+    }
+    .calendar-row {
+        display: flex;
+        height: 145px;
+    }
+
+    .calendar-header {
+        display: flex;
+        height: 25px;
+    }
+
+    .calendar-header .calendar-header-cell {
+        width: 125px;
+        text-align: center;
+        margin-left: 10px;
+        padding: 5px;
+    }
+
+    .calendar-cell {
+        display: flex;
+        flex-wrap: wrap;
+
+        width: 125px;
+        height: 125px;
+        margin-top: 10px;
+        margin-left: 10px;
+        padding: 5px;
+
+        border: 1px solid black;
+    }
+
+    .calendar-cell.red-day {
+        background-color: rgba(255, 0, 0, .25);
+    }
+    .calendar-cell.green-day {
+        background-color: rgba(0, 255, 0, .25);
+    }
+
+    .calendar-cell.no-trade-day {
+        background-color: rgba(125, 125, 125, .25)
+    }
+
+    .calendar-cell.no-trade-day .calendar-cell-middle, .calendar-cell.no-trade-day .calendar-cell-bottom {
+        color: transparent;
+    }
+
+    .calendar-cell .calendar-cell-top, .calendar-cell .calendar-cell-middle, .calendar-cell .calendar-cell-bottom {
+        width: 125px;
+    }
+
+    .calendar-cell .calendar-cell-middle {
+        font-size: 16pt;
+        text-align: center;
+    }
+
+    .calendar-cell .calendar-cell-bottom {
+        font-size: 10pt;
+    }
+
+</style>
+
+<div class="calendar">
+    <div class="calendar-header">
+        <div class="calendar-header-cell">Sunday</div>
+        <div class="calendar-header-cell">Monday</div>
+        <div class="calendar-header-cell">Tuesday</div>
+        <div class="calendar-header-cell">Wednesday</div>
+        <div class="calendar-header-cell">Thursday</div>
+        <div class="calendar-header-cell">Friday</div>
+        <div class="calendar-header-cell">Saturday</div>
+    </div>
+    {{range .Weeks}}<div class="calendar-row">
+        {{range .Days}}<div class="calendar-cell {{ .DayResultClass }}">
+            <div class="calendar-cell-top">{{ .DayVal }}</div>
+            <div class="calendar-cell-middle">{{ .Profit }}</div>
+            <div class="calendar-cell-bottom">
+                <div class="trade-count">Trades: {{ .TradeCount }} ({{ .WinLossPct }}%)</div>
+                <div class="trade-breakdown">Wins: {{ .Wins }}&nbsp;&nbsp;&nbsp;Losses: {{ .Losses }}</div>
+            </div>
+        </div>{{end}}
+    </div>{{end}}
+</div>

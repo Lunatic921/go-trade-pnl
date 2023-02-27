@@ -26,6 +26,17 @@ func (p *Portfolio) GetTradeCount() int {
 	return len(p.Trades)
 }
 
+func (p *Portfolio) GetProfitByDay(day time.Time) float64 {
+	trades := p.GetTradesByDay(day)
+	profit := 0.0
+
+	for _, trade := range trades {
+		profit += trade.GetProfit()
+	}
+
+	return profit
+}
+
 func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
 	startIdx, endIdx := -1, -1
 
@@ -47,7 +58,11 @@ func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
 		endIdx = len(p.Trades)
 	}
 
-	return p.Trades[startIdx:endIdx]
+	if startIdx == -1 || endIdx == -1 {
+		return []*Trade{}
+	} else {
+		return p.Trades[startIdx:endIdx]
+	}
 }
 
 func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {

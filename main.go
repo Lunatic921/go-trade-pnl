@@ -31,6 +31,10 @@ func main() {
 		monthlyChart := &chart.MonthlyChart{Month: currentMonth, Portfolio: p}
 		srv := server.TradePage{Chart: monthlyChart}
 		srv.CreatePath(fmt.Sprintf("/%s", currentMonth.Format("2006-01")), monthlyChart)
+
+		monthlyCalendar := &chart.MonthlyCalendar{Month: currentMonth, Portfolio: p}
+		srv2 := server.TradePage{Chart: monthlyCalendar}
+		srv2.CreatePath(fmt.Sprintf("/calendar/%s", currentMonth.Format("2006-01")), monthlyCalendar)
 	}
 
 	firstYear := time.Date(tradingDays[0].Year(), 1, 1, 0, 0, 0, 0, loc)
