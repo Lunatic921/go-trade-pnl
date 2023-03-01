@@ -17,6 +17,11 @@ type LineChart struct {
 	Line *charts.Line
 }
 
+type ScatterChart struct {
+	Chart
+	Scatter *charts.Scatter
+}
+
 func (lc *LineChart) SetChartOptions() {
 	lc.Line.SetGlobalOptions(charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeEssos}))
 	lc.Line.SetSeriesOptions(

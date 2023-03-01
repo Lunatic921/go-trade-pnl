@@ -29,11 +29,12 @@ func ParseOperation(s string) (t TradeOperation) {
 }
 
 type Trade struct {
-	Ticker     string
-	Side       TradeSide
-	ShareCount int
-	OpenTime   time.Time
-	CloseTime  time.Time
+	Ticker            string
+	Side              TradeSide
+	CurrentShareCount int
+	TotalShareCount   int
+	OpenTime          time.Time
+	CloseTime         time.Time
 
 	OpenExecutions  TradeExecutions
 	CloseExecutions TradeExecutions
@@ -52,21 +53,22 @@ func (t *Trade) execute(e TradeExecution) {
 
 		t.OpenTime = e.ExecTime
 	}
-	t.ShareCount += e.Qty
+	t.CurrentShareCount += e.Qty
 
-	if t.ShareCount == 0 {
+	if t.CurrentShareCount == 0 {
 		t.CloseTime = e.ExecTime
 	}
 
 	if e.PosEffect == TO_OPEN {
 		t.OpenExecutions = append(t.OpenExecutions, e)
+		t.TotalShareCount += e.Qty
 	} else {
 		t.CloseExecutions = append(t.CloseExecutions, e)
 	}
 }
 
 func (t *Trade) isOpen() (_ bool) {
-	return t.ShareCount != 0
+	return t.CurrentShareCount != 0
 }
 
 func (t *Trade) GetProfit() (profit float64) {
@@ -91,4 +93,17 @@ func (t *Trade) GetProfit() (profit float64) {
 	}
 
 	return profit
+}
+
+func (t *Trade) GetOpeningPriceAvg() (avgPrice float64) {
+	exCount := 0.0
+	avgPrice = 0.0
+	for _, e := range t.OpenExecutions {
+		avgPrice += e.NetPrice
+		exCount++
+	}
+
+	avgPrice /= exCount
+
+	return avgPrice
 }

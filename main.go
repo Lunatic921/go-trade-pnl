@@ -28,13 +28,22 @@ func main() {
 	monthAfterEndMonth := time.Date(tradingDays[len(tradingDays)-1].Year(), tradingDays[len(tradingDays)-1].Month()+1, 0, 0, 0, 0, 0, loc)
 
 	for currentMonth := time.Date(tradingDays[0].Year(), tradingDays[0].Month(), 1, 0, 0, 0, 0, loc); currentMonth.Before(monthAfterEndMonth); currentMonth = currentMonth.AddDate(0, 1, 0) {
+		monthFormatted := currentMonth.Format("2006-01")
 		monthlyChart := &chart.MonthlyChart{Month: currentMonth, Portfolio: p}
 		srv := server.TradePage{Chart: monthlyChart}
-		srv.CreatePath(fmt.Sprintf("/%s", currentMonth.Format("2006-01")), monthlyChart)
+		srv.CreatePath(fmt.Sprintf("/%s", monthFormatted), monthlyChart)
 
 		monthlyCalendar := &chart.MonthlyCalendar{Month: currentMonth, Portfolio: p}
 		srv2 := server.TradePage{Chart: monthlyCalendar}
-		srv2.CreatePath(fmt.Sprintf("/calendar/%s", currentMonth.Format("2006-01")), monthlyCalendar)
+		srv2.CreatePath(fmt.Sprintf("/calendar/%s", monthFormatted), monthlyCalendar)
+
+		monthlyProfitPrice := &chart.MonthlyPriceProfitChart{Month: currentMonth, Portfolio: p}
+		srv3 := server.TradePage{Chart: monthlyProfitPrice}
+		srv3.CreatePath(fmt.Sprintf("/profitprice/%s", monthFormatted), monthlyProfitPrice)
+
+		monthlySharePrice := &chart.MonthlyPriceShareChart{Month: currentMonth, Portfolio: p}
+		srv4 := server.TradePage{Chart: monthlySharePrice}
+		srv4.CreatePath(fmt.Sprintf("/shareprice/%s", monthFormatted), monthlySharePrice)
 	}
 
 	firstYear := time.Date(tradingDays[0].Year(), 1, 1, 0, 0, 0, 0, loc)

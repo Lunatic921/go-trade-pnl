@@ -119,9 +119,5 @@ func (c *MonthlyCalendar) getCalendarDays() []time.Time {
 		startDay = startDay.AddDate(0, 0, 1)
 	}
 
-	for _, day := range days {
-		fmt.Printf("%s\n", day.Format("2006/01/02"))
-	}
-
 	return days
 }
