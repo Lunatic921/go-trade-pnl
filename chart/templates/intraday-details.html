@@ -1,0 +1,19 @@
+<style>
+    .container {
+        width: 900px;
+    }
+
+</style>
+
+<div class="trade-profits-container">
+    {{range .ProfitsByTicker}}<div class="trade-profits-row">
+        {{.}}
+    </div>{{end}}
+</div>
+
+<div class="trade-detail-container">
+    {{range .TradeDetails}}<div class="trade-detail-row">
+        {{.}}
+    </div>{{end}}
+</div>
+

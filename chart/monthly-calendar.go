@@ -36,6 +36,8 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 	calDays := c.getCalendarDays()
 	var calWeeks []CalendarWeek
 	newWeek := CalendarWeek{}
+	monthlyProfit := 0.0
+	monthlyWins, monthlyTrades, daysTraded := 0, 0, 0
 
 	for _, calDay := range calDays {
 		if len(newWeek.Days) == 7 {
@@ -43,8 +45,19 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			newWeek = CalendarWeek{}
 		}
 
+		if calDay.Compare(c.Month) == -1 {
+			newWeek.Days = append(newWeek.Days, TradingDay{
+				Day:            calDay,
+				DayVal:         calDay.Day(),
+				DayResultClass: "no-trade-day",
+			})
+			continue
+		}
+
 		dailyTrades := c.Portfolio.GetTradesByDay(calDay)
 		dailyProfit := c.Portfolio.GetProfitByDay(calDay)
+
+		monthlyProfit += dailyProfit
 
 		profitStr := fmt.Sprintf("$%.2f", dailyProfit)
 		if calDay.Weekday() == time.Saturday || calDay.Weekday() == time.Sunday {
@@ -54,10 +67,14 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		dayResultClasses := ""
 		if calDay.Compare(c.Month) < 0 || len(dailyTrades) == 0 {
 			dayResultClasses = "no-trade-day"
-		} else if dailyProfit > 0 {
-			dayResultClasses = "green-day"
-		} else if dailyProfit < 0 {
-			dayResultClasses = "red-day"
+		} else {
+			daysTraded++
+
+			if dailyProfit > 0 {
+				dayResultClasses = "green-day"
+			} else if dailyProfit < 0 {
+				dayResultClasses = "red-day"
+			}
 		}
 
 		dailyWins := 0
@@ -65,7 +82,11 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			if trade.GetProfit() >= 0 {
 				dailyWins++
 			}
+
+			monthlyTrades++
 		}
+
+		monthlyWins += dailyWins
 
 		winLossPct := 0.0
 		if len(dailyTrades) > 0 {
@@ -88,10 +109,23 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		calWeeks = append(calWeeks, newWeek)
 	}
 
+	winRate := fmt.Sprintf("%.2f%%", (float64(monthlyWins)/float64(monthlyTrades))*100.0)
+	dailyAvg := fmt.Sprintf("$%.2f", monthlyProfit/float64(daysTraded))
+
 	data := struct {
-		Weeks []CalendarWeek
+		Weeks         []CalendarWeek
+		MonthlyProfit string
+		WinRate       string
+		WinningTrades int
+		TotalTrades   int
+		DailyAvg      string
 	}{
-		Weeks: calWeeks,
+		Weeks:         calWeeks,
+		MonthlyProfit: fmt.Sprintf("$%.2f", monthlyProfit),
+		WinRate:       winRate,
+		WinningTrades: monthlyWins,
+		TotalTrades:   monthlyTrades,
+		DailyAvg:      dailyAvg,
 	}
 
 	tmpl.Execute(w, data)

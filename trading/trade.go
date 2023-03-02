@@ -96,14 +96,21 @@ func (t *Trade) GetProfit() (profit float64) {
 }
 
 func (t *Trade) GetOpeningPriceAvg() (avgPrice float64) {
-	exCount := 0.0
+	return t.getPriceAvg(t.OpenExecutions)
+}
+
+func (t *Trade) GetClosingPriceAvg() (avgPrice float64) {
+	return t.getPriceAvg(t.CloseExecutions)
+}
+
+func (t *Trade) getPriceAvg(executions TradeExecutions) (avgPrice float64) {
 	avgPrice = 0.0
-	for _, e := range t.OpenExecutions {
+
+	for _, e := range executions {
 		avgPrice += e.NetPrice
-		exCount++
 	}
 
-	avgPrice /= exCount
+	avgPrice /= float64(len(executions))
 
 	return avgPrice
 }
