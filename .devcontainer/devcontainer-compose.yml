@@ -1,0 +1,17 @@
+version: "3"
+services:
+  agent:
+    environment:
+      - SHELL=/bin/bash
+    env_file: 
+      - .env
+    hostname: ${COMPOSE_PROJECT_NAME}_dev
+    container_name: ${COMPOSE_PROJECT_NAME}_dev
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    privileged: true
+    entrypoint: tail -f /dev/null
+    volumes:
+      - ..:/code/go-trade-pnl
+      - ~/Downloads/:/shared

@@ -9,8 +9,8 @@ type TradeSide string
 
 const (
 	UNKNOWN TradeSide = "UNKNOWN"
-	LONG              = "LONG"
-	SHORT             = "SHORT"
+	LONG    TradeSide = "LONG"
+	SHORT   TradeSide = "SHORT"
 )
 
 type TradeOperation string
@@ -50,13 +50,13 @@ func (t *Trade) execute(e TradeExecution) {
 		} else {
 			t.Side = SHORT
 		}
-
-		t.OpenTime = e.ExecTime
 	}
 	t.CurrentShareCount += e.Qty
 
 	if t.CurrentShareCount == 0 {
 		t.CloseTime = e.ExecTime
+	} else if t.OpenTime == (time.Time{}) {
+		t.OpenTime = e.ExecTime
 	}
 
 	if e.PosEffect == TO_OPEN {
@@ -113,4 +113,8 @@ func (t *Trade) getPriceAvg(executions TradeExecutions) (avgPrice float64) {
 	avgPrice /= float64(len(executions))
 
 	return avgPrice
+}
+
+func (t *Trade) GetDuration() time.Duration {
+	return time.Time.Sub(t.CloseTime, t.OpenTime)
 }

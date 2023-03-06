@@ -3,17 +3,79 @@
         width: 900px;
     }
 
+
+    .trade-grid {
+        width: 280px;
+        border: 1px solid rgba(125, 125, 125, 0.3);
+        margin: 5px;
+    }
+
+    .trade-grid * {
+        border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+    }
+
+    .trade-grid-header {
+        display: flex;
+
+        font-weight: bold;
+    }
+
+    .trade-grid-header > * {
+        border-right: 1px solid rgba(125, 125, 125, 0.3);
+        padding: 5px;
+    }
+
+    .trade-scrollable {
+        height: 300px;
+        overflow-y: scroll;
+    }
+
+    .trade-row {
+        display: flex;
+    }
+
+    .trade-row > * {
+        border-right: 1px solid rgba(125, 125, 125, 0.3);
+        padding: 5px;
+    }
+
+    .trade-row-ticker {
+        width: 60px;
+        overflow-x: hidden
+    }
+
+    .trade-row-profit {
+        width: 60px;
+    }
+
+    .trade-row-entry-time {
+        width: 65px;
+    }
+
+    .trade-row-duration {
+        width: 75px;
+    }
+
+    .trade-row .trade-row-duration {
+        width: 59px;
+    }
+
 </style>
 
-<div class="trade-profits-container">
-    {{range .ProfitsByTicker}}<div class="trade-profits-row">
-        {{.}}
-    </div>{{end}}
-</div>
-
-<div class="trade-detail-container">
-    {{range .TradeDetails}}<div class="trade-detail-row">
-        {{.}}
-    </div>{{end}}
+<div class="trade-grid">
+    <div class="trade-grid-header">
+        <div class="trade-row-ticker">Ticker</div>
+        <div class="trade-row-profit">P/L</div>
+        <div class="trade-row-entry-time">Time</div>
+        <div class="trade-row-duration">Duration</div>
+    </div>
+    <div class="trade-scrollable">
+        {{range .Trades}}<div class="trade-row">
+            <div class="trade-row-ticker">{{.Ticker}}</div>
+            <div class="trade-row-profit">{{.GetProfit}}</div>
+            <div class="trade-row-entry-time">{{.GetOpenTime}}</div>
+            <div class="trade-row-duration">{{.GetDuration}}</div>
+        </div>{{end}}
+    </div>
 </div>
 

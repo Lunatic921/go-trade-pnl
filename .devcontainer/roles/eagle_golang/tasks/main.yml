@@ -1,0 +1,98 @@
+---
+
+- name: Install Go prerequisites
+  yum:
+    name:
+      - gcc
+      - gcc-c++
+      - libstdc++
+      - git
+      - openssl
+    state: present
+  become: true
+  become_method: sudo
+  become_user: root
+
+
+- name: Ensure {{ go_usergroup }} group is present
+  group:
+    name: "{{ go_usergroup }}"
+    state: present
+
+- name: Add user to to {{ go_usergroup }} group
+  user:
+    name: "{{ go_user }}"
+    groups: "{{ go_usergroup }}"
+    append: yes
+
+- name: Ensure Go directory is clean
+  file:
+    state: absent
+    path: "{{ go_base }}"
+
+- name: Fetch base Go installation
+  unarchive: 
+    src: "https://dl.google.com/go/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "{{ go_base | dirname }}"
+    remote_src: True
+    creates: "{{ go_base }}"
+
+- name: Ensure Go directory exists and is owned by {{ go_usergroup }} group
+  file:
+    state: directory
+    path: "{{ go_base }}"
+    group: "{{ go_usergroup }}"
+    mode: g=rwx
+    recurse: yes
+
+- name: Ensure directory {{ go_root }} is clean
+  file:
+    state: absent
+    path: "{{ go_root }}"
+
+- name: Ensure GOROOT directory {{ go_root }} exists and is owned by {{ go_usergroup }} group
+  file:
+    state: directory
+    path: "{{ go_root }}"
+    group: "{{ go_usergroup }}"
+    mode: g=rwx
+
+- name: Ensure GOPATH {{ go_path }} exists and is owned by {{ go_usergroup }} group
+  file:
+    state: directory
+    path: "{{ go_path }}"
+    group: "{{ go_usergroup }}"
+    mode: g=rwx
+    recurse: yes
+
+- name: Deploy customized Go setup script
+  template:
+    src: get-go.sh.j2
+    dest: /tmp/get-go.sh
+    mode: +x
+    owner: "{{ go_user }}"
+
+- name: Run custom Go build
+  shell:
+    cmd: /tmp/get-go.sh
+  become: true
+  become_method: sudo
+  become_user: "{{ go_user }}"
+
+- name: Delete setup script
+  file:
+    path: /tmp/get-go.sh
+    state: absent
+
+- name: Update environment variables for user {{ go_user }}
+  template:
+    src: goprofile.j2
+    dest: /etc/profile.d/goprofile.sh
+    mode: 0755
+    force: yes
+    owner: "{{ go_user }}"
+
+- name: Use SSH instead of HTTPS for github.ibm.com
+  shell: git config --global url.ssh://git@github.ibm.com/.insteadOf https://github.ibm.com/
+  become: true
+  become_user: "{{ go_user }}"

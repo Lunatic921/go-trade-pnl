@@ -1,0 +1,21 @@
+#!/bin/bash
+set -x
+
+#Need to have a bootstrap installation of Go
+export GOROOT_BOOTSTRAP={{ go_base }}
+echo "Using GOROOT_BOOTSTRAP of $GOROOT_BOOTSTRAP"
+mkdir -p {{ go_root }}
+cd {{ go_root }}
+#git clone https://go.googlesource.com/go goroot
+git clone -q --depth 1 --single-branch -b go{{ go_version }} https://github.com/golang/go .
+cd ./src
+echo "" >> runtime/proc.go
+echo "func GoID() int64 {" >> runtime/proc.go
+echo "    return getg().m.curg.goid" >> runtime/proc.go
+echo "}" >> runtime/proc.go
+./make.bash
+if [ $? -ne 0 ]
+then
+    echo "Go build failed"
+    exit 1
+fi

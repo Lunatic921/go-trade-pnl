@@ -1,0 +1,7 @@
+---
+go_user: eagle
+go_usergroup: golang
+go_version: 1.19.5
+go_base: /usr/local/go
+go_root: "{{ go_base }}.eagle.{{ go_version }}"
+go_path: "{% if go_user == 'root' %}/root/go{% else %}/home/{{ go_user }}/go{% endif %}"
