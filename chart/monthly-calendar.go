@@ -15,6 +15,7 @@ type MonthlyCalendar struct {
 
 type TradingDay struct {
 	Day            time.Time
+	FormattedDay   string
 	DayVal         int
 	Profit         string
 	TradeCount     int
@@ -50,6 +51,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 				Day:            calDay,
 				DayVal:         calDay.Day(),
 				DayResultClass: "no-trade-day",
+				FormattedDay:   calDay.Format("2006-01-02"),
 			})
 			continue
 		}
@@ -102,6 +104,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			Losses:         len(dailyTrades) - dailyWins,
 			WinLossPct:     fmt.Sprintf("%.2f", winLossPct),
 			DayResultClass: dayResultClasses,
+			FormattedDay:   calDay.Format("2006-01-02"),
 		})
 	}
 
@@ -119,6 +122,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		WinningTrades int
 		TotalTrades   int
 		DailyAvg      string
+		DailyTrades   int
 	}{
 		Weeks:         calWeeks,
 		MonthlyProfit: fmt.Sprintf("$%.2f", monthlyProfit),
@@ -126,6 +130,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		WinningTrades: monthlyWins,
 		TotalTrades:   monthlyTrades,
 		DailyAvg:      dailyAvg,
+		DailyTrades:   monthlyTrades / daysTraded,
 	}
 
 	tmpl.Execute(w, data)

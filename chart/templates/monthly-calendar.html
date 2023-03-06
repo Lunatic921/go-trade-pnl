@@ -68,6 +68,7 @@
     <div>Month P/L: {{.MonthlyProfit}}</div>
     <div>Win Rate: {{.WinRate}}&nbsp;({{.WinningTrades}}/{{.TotalTrades}})</div>
     <div>Daily Average: {{.DailyAvg}}</div>
+    <div>Daily Trades: {{.DailyTrades}}</div>
 </div>
 
 <div class="calendar">
@@ -82,7 +83,7 @@
     </div>
     {{range .Weeks}}<div class="calendar-row">
         {{range .Days}}<div class="calendar-cell {{ .DayResultClass }}">
-            <div class="calendar-cell-top">{{ .DayVal }}</div>
+            <div class="calendar-cell-top"><a href="/{{ .FormattedDay }}">{{ .DayVal }}</a></div>
             <div class="calendar-cell-middle">{{ .Profit }}</div>
             <div class="calendar-cell-bottom">
                 <div class="trade-count">Trades: {{ .TradeCount }} ({{ .WinLossPct }}%)</div>
