@@ -5,6 +5,7 @@ import (
 	"go-trade-pnl/trading"
 	"io"
 	"math"
+	"sort"
 	"text/template"
 	"time"
 
@@ -27,6 +28,10 @@ const intraDayTmplPath = "chart/templates/intraday-details.html"
 func (c *IntradayChart) Draw(w io.Writer) error {
 
 	trades := c.Portfolio.GetTradesByDay(c.Day)
+
+	sort.SliceStable(trades, func(i, j int) bool {
+		return trades[i].CloseTime.Compare(trades[j].CloseTime) == -1
+	})
 
 	tradeTimeAxisData := make([]string, len(trades))
 	for i, trade := range trades {
