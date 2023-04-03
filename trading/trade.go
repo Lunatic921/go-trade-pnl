@@ -118,3 +118,11 @@ func (t *Trade) getPriceAvg(executions TradeExecutions) (avgPrice float64) {
 func (t *Trade) GetDuration() time.Duration {
 	return time.Time.Sub(t.CloseTime, t.OpenTime)
 }
+
+func (t *Trade) GetPercentGain() float64 {
+	profitPerShare := t.GetProfit() / float64(t.TotalShareCount)
+
+	stockPrice := t.GetOpeningPriceAvg()
+
+	return profitPerShare / stockPrice
+}

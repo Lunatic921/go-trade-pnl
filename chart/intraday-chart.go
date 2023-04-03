@@ -33,9 +33,11 @@ func (c *IntradayChart) Draw(w io.Writer) error {
 		return trades[i].CloseTime.Compare(trades[j].CloseTime) == -1
 	})
 
+	easternTimezone, _ := time.LoadLocation("America/New_York")
+
 	tradeTimeAxisData := make([]string, len(trades))
 	for i, trade := range trades {
-		tradeTimeAxisData[i] = trade.CloseTime.Format("15:04:05")
+		tradeTimeAxisData[i] = trade.CloseTime.In(easternTimezone).Format("15:04:05")
 	}
 
 	tradeProfitChartData := make([]opts.LineData, len(trades))

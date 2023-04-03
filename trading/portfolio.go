@@ -156,11 +156,14 @@ func (p *Portfolio) parseTradeFile() {
 		return
 	}
 
+	t := time.Now()
+	timezone := t.Location()
+
 	var trades TradeExecutions
 	for _, record := range records {
 		layout := "1/2/06 15:04:05"
 
-		execTime, _ := time.Parse(layout, record[1])
+		execTime, _ := time.ParseInLocation(layout, record[1], timezone)
 		qty, _ := strconv.Atoi(record[4])
 		price, _ := strconv.ParseFloat(record[10], 64)
 		netPrice, _ := strconv.ParseFloat(record[11], 64)
