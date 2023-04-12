@@ -44,6 +44,10 @@ func main() {
 		monthlySharePrice := &chart.MonthlyPriceShareChart{Month: currentMonth, Portfolio: p}
 		srv4 := server.TradePage{Chart: monthlySharePrice}
 		srv4.CreatePath(fmt.Sprintf("/shareprice/%s", monthFormatted), monthlySharePrice)
+
+		timeOfDayChart := &chart.TimeOfDayChart{Month: currentMonth, Portfolio: p}
+		srv5 := server.TradePage{Chart: timeOfDayChart}
+		srv5.CreatePath(fmt.Sprintf("/tod/%s", currentMonth.Format("2006-01")), timeOfDayChart)
 	}
 
 	firstYear := time.Date(tradingDays[0].Year(), 1, 1, 0, 0, 0, 0, loc)
