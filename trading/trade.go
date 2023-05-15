@@ -40,7 +40,7 @@ type Trade struct {
 	CloseExecutions TradeExecutions
 }
 
-type Trades []Trade
+type Trades []*Trade
 
 func (t *Trade) execute(e TradeExecution) {
 
@@ -125,4 +125,16 @@ func (t *Trade) GetPercentGain() float64 {
 	stockPrice := t.GetOpeningPriceAvg()
 
 	return profitPerShare / stockPrice
+}
+
+func (t Trades) Len() int {
+	return len(t)
+}
+
+func (t Trades) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
+}
+
+func (t Trades) Less(i, j int) bool {
+	return t[i].CloseTime.Before(t[j].CloseTime)
 }

@@ -13,7 +13,7 @@ import (
 
 type Portfolio struct {
 	filePath string
-	Trades   []*Trade
+	Trades   Trades
 }
 
 func NewPortfolio(filePath string) *Portfolio {
@@ -38,31 +38,15 @@ func (p *Portfolio) GetProfitByDay(day time.Time) float64 {
 }
 
 func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
-	startIdx, endIdx := -1, -1
+	trades := make([]*Trade, 0, 100)
 
-	for i, trade := range p.Trades {
-
+	for _, trade := range p.Trades {
 		if trade.CloseTime.Year() == day.Year() && trade.CloseTime.Month() == day.Month() && trade.CloseTime.Day() == day.Day() {
-			if startIdx == -1 {
-				startIdx = i
-			}
-		} else {
-			if startIdx != -1 {
-				endIdx = i
-				break
-			}
+			trades = append(trades, trade)
 		}
 	}
 
-	if startIdx != -1 && endIdx == -1 {
-		endIdx = len(p.Trades)
-	}
-
-	if startIdx == -1 || endIdx == -1 {
-		return []*Trade{}
-	} else {
-		return p.Trades[startIdx:endIdx]
-	}
+	return trades
 }
 
 func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {
@@ -208,4 +192,7 @@ func (p *Portfolio) parseTradeFile() {
 			p.Trades = append(p.Trades, trade)
 		}
 	}
+
+	//Sort trades by when they were closed
+	sort.Sort(p.Trades)
 }
