@@ -48,6 +48,10 @@ func main() {
 		timeOfDayChart := &chart.TimeOfDayChart{Month: currentMonth, Portfolio: p}
 		srv5 := server.TradePage{Chart: timeOfDayChart}
 		srv5.CreatePath(fmt.Sprintf("/tod/%s", currentMonth.Format("2006-01")), timeOfDayChart)
+
+		durationChart := &chart.MonthlyDurationScatterChart{Month: currentMonth, Portfolio: p}
+		srv6 := server.TradePage{Chart: durationChart}
+		srv6.CreatePath(fmt.Sprintf("/duration/%s", currentMonth.Format("2006-01")), durationChart)
 	}
 
 	firstYear := time.Date(tradingDays[0].Year(), 1, 1, 0, 0, 0, 0, loc)
