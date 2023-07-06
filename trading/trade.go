@@ -127,6 +127,18 @@ func (t *Trade) GetPercentGain() float64 {
 	return profitPerShare / stockPrice
 }
 
+func (t *Trade) IsSwing() bool {
+	formatStr := "2006-01-02"
+	openTime := t.OpenExecutions[0].ExecTime.Format(formatStr)
+	closeTime := ""
+
+	if t.CloseExecutions != nil {
+		closeTime = t.CloseExecutions[0].ExecTime.Format(formatStr)
+	}
+
+	return openTime != closeTime
+}
+
 func (t Trades) Len() int {
 	return len(t)
 }

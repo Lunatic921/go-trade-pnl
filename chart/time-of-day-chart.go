@@ -89,3 +89,7 @@ func (c *TimeOfDayChart) generateIntervals() []time.Time {
 
 	return intervals
 }
+
+func (c *TimeOfDayChart) SetTradeMode(includeSwings bool) {
+	c.Portfolio.IncludeSwing = includeSwings
+}

@@ -52,3 +52,7 @@ func (c *MonthlyDurationScatterChart) Draw(w io.Writer) error {
 
 	return nil
 }
+
+func (c *MonthlyDurationScatterChart) SetTradeMode(includeSwings bool) {
+	c.Portfolio.IncludeSwing = includeSwings
+}

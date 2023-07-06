@@ -160,3 +160,7 @@ func (c *MonthlyCalendar) getCalendarDays() []time.Time {
 
 	return days
 }
+
+func (c *MonthlyCalendar) SetTradeMode(includeSwings bool) {
+	c.Portfolio.IncludeSwing = includeSwings
+}

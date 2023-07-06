@@ -10,7 +10,12 @@ type TradePage struct {
 	Chart chart.Chart
 }
 
-func (t *TradePage) httpServer(w http.ResponseWriter, _ *http.Request) {
+func (t *TradePage) httpServer(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("swings") == "1" {
+		t.Chart.SetTradeMode(true)
+	} else {
+		t.Chart.SetTradeMode(false)
+	}
 	t.Chart.Draw(w)
 }
 

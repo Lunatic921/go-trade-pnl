@@ -78,6 +78,10 @@ func (c *IntradayChart) Draw(w io.Writer) error {
 	return nil
 }
 
+func (c *IntradayChart) SetTradeMode(includeSwings bool) {
+	c.Portfolio.IncludeSwing = includeSwings
+}
+
 // func (c *IntradayChart) getProfitsPerTicker(trades []*trading.Trade) []string {
 // 	tickerProfits := make(map[string]float64)
 

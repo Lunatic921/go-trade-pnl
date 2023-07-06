@@ -66,3 +66,7 @@ func (c *MonthlyChart) Draw(w io.Writer) error {
 
 	return nil
 }
+
+func (c *MonthlyChart) SetTradeMode(includeSwings bool) {
+	c.Portfolio.IncludeSwing = includeSwings
+}

@@ -14,16 +14,18 @@ import (
 type Portfolio struct {
 	filePath string
 	Trades   Trades
+
+	IncludeSwing bool
 }
 
 func NewPortfolio(filePath string) *Portfolio {
-	p := &Portfolio{filePath: filePath, Trades: make([]*Trade, 0, 1000)}
+	p := &Portfolio{filePath: filePath, Trades: make([]*Trade, 0, 10000)}
 	p.parseTradeFile()
 	return p
 }
 
-func (p *Portfolio) GetTradeCount() int {
-	return len(p.Trades)
+func (p *Portfolio) GetTradeCount(excludeSwing bool) int {
+	return len(p.GetTrades())
 }
 
 func (p *Portfolio) GetProfitByDay(day time.Time) float64 {
@@ -40,7 +42,7 @@ func (p *Portfolio) GetProfitByDay(day time.Time) float64 {
 func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
 	trades := make([]*Trade, 0, 100)
 
-	for _, trade := range p.Trades {
+	for _, trade := range p.GetTrades() {
 		if trade.CloseTime.Year() == day.Year() && trade.CloseTime.Month() == day.Month() && trade.CloseTime.Day() == day.Day() {
 			trades = append(trades, trade)
 		}
@@ -52,7 +54,7 @@ func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
 func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {
 	trades := make([]Trade, 0, 3100)
 
-	for _, trade := range p.Trades {
+	for _, trade := range p.GetTrades() {
 
 		if trade.CloseTime.Year() == month.Year() && trade.CloseTime.Month() == month.Month() {
 			trades = append(trades, *trade)
@@ -64,7 +66,7 @@ func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {
 
 func (p *Portfolio) GetTradesByYear(year time.Time) []Trade {
 	trades := make([]Trade, 0, 40000)
-	for _, trade := range p.Trades {
+	for _, trade := range p.GetTrades() {
 		if trade.CloseTime.Year() == year.Year() {
 			trades = append(trades, *trade)
 		}
@@ -76,7 +78,7 @@ func (p *Portfolio) GetTradesByYear(year time.Time) []Trade {
 func (p *Portfolio) GetTradingDays() []time.Time {
 	days := make([]time.Time, 0, 365)
 
-	for _, trade := range p.Trades {
+	for _, trade := range p.GetTrades() {
 		foundDay := false
 
 		loc, _ := time.LoadLocation("America/Phoenix")
@@ -102,6 +104,26 @@ func (p *Portfolio) GetTradingDays() []time.Time {
 	})
 
 	return days
+}
+
+func (p *Portfolio) GetTrades() Trades {
+	if p.IncludeSwing {
+		return p.Trades
+	} else {
+		dayTrades := make(Trades, 0)
+		lastSwing := 0
+
+		for i, t := range p.Trades {
+			if t.IsSwing() {
+				dayTrades = append(dayTrades, p.Trades[lastSwing:i]...)
+				lastSwing = i + 1
+			}
+		}
+
+		dayTrades = append(dayTrades, p.Trades[lastSwing:]...)
+
+		return dayTrades
+	}
 }
 
 func (p *Portfolio) parseTradeFile() {

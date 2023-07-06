@@ -10,6 +10,7 @@ import (
 
 type Chart interface {
 	Draw(w io.Writer) error
+	SetTradeMode(includeSwings bool)
 }
 
 type LineChart struct {
