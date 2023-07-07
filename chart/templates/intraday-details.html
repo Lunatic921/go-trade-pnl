@@ -5,7 +5,7 @@
 
 
     .trade-grid {
-        width: 280px;
+        width: 470px;
         border: 1px solid rgba(125, 125, 125, 0.3);
         margin: 5px;
     }
@@ -57,7 +57,14 @@
     }
 
     .trade-row .trade-row-duration {
-        width: 59px;
+        width: 75px;
+    }
+
+    .trade-row-entry-price {
+        width: 60px;
+    }
+    .trade-row-exit-price {
+        width: 60px;
     }
 
 </style>
@@ -68,6 +75,8 @@
         <div class="trade-row-profit">P/L</div>
         <div class="trade-row-entry-time">Time</div>
         <div class="trade-row-duration">Duration</div>
+        <div class="trade-row-entry-price">Entry Price</div>
+        <div class="trade-row-exit-price">Exit Price</div>
     </div>
     <div class="trade-scrollable">
         {{range .Trades}}<div class="trade-row">
@@ -75,6 +84,8 @@
             <div class="trade-row-profit">{{.GetProfit}}</div>
             <div class="trade-row-entry-time">{{.GetOpenTime}}</div>
             <div class="trade-row-duration">{{.GetDuration}}</div>
+            <div class="trade-row-entry-price">{{.GetEntryPrice}}</div>
+            <div class="trade-row-exit-price">{{.GetExitPrice}}</div>
         </div>{{end}}
     </div>
 </div>

@@ -143,3 +143,27 @@ func (et *ExtendedTrade) GetProfit() string {
 
 	return fmt.Sprintf("%s$%.2f", minusSign, math.Abs(et.Trade.GetProfit()))
 }
+
+func (et *ExtendedTrade) GetEntryPrice() string {
+	openTotal := 0.0
+	openCount := 0
+
+	for _, trade := range et.Trade.OpenExecutions {
+		openTotal += trade.NetPrice
+		openCount += 1
+	}
+
+	return fmt.Sprintf("$%.2f", openTotal/float64(openCount))
+}
+
+func (et *ExtendedTrade) GetExitPrice() string {
+	exitTotal := 0.0
+	exitCount := 0
+
+	for _, trade := range et.Trade.CloseExecutions {
+		exitTotal += trade.NetPrice
+		exitCount += 1
+	}
+
+	return fmt.Sprintf("$%.2f", math.Abs(exitTotal/float64(exitCount)))
+}
