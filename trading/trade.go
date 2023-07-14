@@ -129,9 +129,12 @@ func (t *Trade) GetPercentGain() float64 {
 
 func (t *Trade) IsSwing() bool {
 	formatStr := "2006-01-02"
-	openTime := t.OpenExecutions[0].ExecTime.Format(formatStr)
-	closeTime := ""
+	openTime := ""
+	if t.OpenExecutions != nil {
+		openTime = t.OpenExecutions[0].ExecTime.Format(formatStr)
+	}
 
+	closeTime := ""
 	if t.CloseExecutions != nil {
 		closeTime = t.CloseExecutions[0].ExecTime.Format(formatStr)
 	}
