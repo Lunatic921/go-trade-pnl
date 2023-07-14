@@ -12,15 +12,15 @@ import (
 )
 
 type Portfolio struct {
-	filePath string
-	Trades   Trades
+	directory string
+	Trades    Trades
 
 	IncludeSwing bool
 }
 
-func NewPortfolio(filePath string) *Portfolio {
-	p := &Portfolio{filePath: filePath, Trades: make([]*Trade, 0, 10000)}
-	p.parseTradeFile()
+func NewPortfolio(directory string) *Portfolio {
+	p := &Portfolio{directory: directory, Trades: make([]*Trade, 0, 10000)}
+	p.parseTradeDirectory()
 	return p
 }
 
@@ -126,9 +126,20 @@ func (p *Portfolio) GetTrades() Trades {
 	}
 }
 
-func (p *Portfolio) parseTradeFile() {
+func (p *Portfolio) parseTradeDirectory() {
+	files, err := os.ReadDir(p.directory)
+	if err != nil {
+		fmt.Printf("Failed to open directory: %+v\n", err)
+	}
 
-	file, err := os.Open(p.filePath)
+	for _, file := range files {
+		p.parseTradeFile(p.directory + "/" + file.Name())
+	}
+}
+
+func (p *Portfolio) parseTradeFile(filePath string) {
+
+	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
