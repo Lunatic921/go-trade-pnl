@@ -17,7 +17,12 @@ type YearlyChart struct {
 }
 
 func (c *YearlyChart) Draw(w io.Writer) error {
-	_, weekOfYear := time.Now().ISOWeek()
+	timeNow := time.Now()
+	_, weekOfYear := timeNow.ISOWeek()
+	if c.Year.Year() != timeNow.Year() {
+		year := c.Year
+		_, weekOfYear = year.Add(-time.Minute).ISOWeek()
+	}
 	profitsByWeek := make([]float64, weekOfYear)
 
 	tradesThisYear := c.Portfolio.GetTradesByYear(c.Year)
@@ -32,12 +37,14 @@ func (c *YearlyChart) Draw(w io.Writer) error {
 	for _, trade := range tradesThisYear {
 		_, tradeWeek := trade.CloseTime.ISOWeek()
 		if tradeWeek != currWeek {
-			currWeek = tradeWeek
-			tradeTimeAxisData[currWeek-1] = trade.CloseTime.Format("01/02")
+			for tradeWeek != currWeek {
+				currWeek += 1
+				tradeTimeAxisData[currWeek-1] = trade.CloseTime.Format("01/02")
 
-			profitsByWeek[currWeek-1] = 0
-			if currWeek-1 > 0 {
-				profitsByWeek[currWeek-1] = profitsByWeek[currWeek-2]
+				profitsByWeek[currWeek-1] = 0
+				if currWeek-1 > 0 {
+					profitsByWeek[currWeek-1] = profitsByWeek[currWeek-2]
+				}
 			}
 		}
 
