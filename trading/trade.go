@@ -105,12 +105,14 @@ func (t *Trade) GetClosingPriceAvg() (avgPrice float64) {
 
 func (t *Trade) getPriceAvg(executions TradeExecutions) (avgPrice float64) {
 	avgPrice = 0.0
+	shareCount := 0.0
 
 	for _, e := range executions {
-		avgPrice += e.NetPrice
+		avgPrice += (e.NetPrice * float64(e.Qty))
+		shareCount += float64(e.Qty)
 	}
 
-	avgPrice /= float64(len(executions))
+	avgPrice /= shareCount
 
 	return avgPrice
 }

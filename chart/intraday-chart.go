@@ -23,6 +23,13 @@ type ExtendedTrade struct {
 	*trading.Trade
 }
 
+type TickerSummary struct {
+	Ticker            string
+	TradeCount        int
+	WinningTradeCount int
+	Profit            float64
+}
+
 const intraDayTmplPath = "chart/templates/intraday-details.html"
 
 func (c *IntradayChart) Draw(w io.Writer) error {
@@ -64,9 +71,11 @@ func (c *IntradayChart) Draw(w io.Writer) error {
 	}
 
 	data := struct {
-		Trades []ExtendedTrade
+		Trades        []ExtendedTrade
+		TickerSummary []*TickerSummary
 	}{
-		Trades: extendedTrades,
+		Trades:        extendedTrades,
+		TickerSummary: c.getProfitsPerTicker(trades),
 	}
 
 	tmpl := template.Must(template.ParseFiles(intraDayTmplPath))
@@ -82,49 +91,46 @@ func (c *IntradayChart) SetTradeMode(includeSwings bool) {
 	c.Portfolio.IncludeSwing = includeSwings
 }
 
-// func (c *IntradayChart) getProfitsPerTicker(trades []*trading.Trade) []string {
-// 	tickerProfits := make(map[string]float64)
+func (c *IntradayChart) getProfitsPerTicker(trades []*trading.Trade) []*TickerSummary {
+	tickerProfits := make(map[string]*TickerSummary)
 
-// 	keys := make([]string, 0, len(trades))
+	keys := make([]string, 0, len(trades))
 
-// 	for _, trade := range trades {
-// 		_, ok := tickerProfits[trade.Ticker]
-// 		if ok {
-// 			tickerProfits[trade.Ticker] += trade.GetProfit()
-// 		} else {
-// 			tickerProfits[trade.Ticker] = trade.GetProfit()
-// 			keys = append(keys, trade.Ticker)
-// 		}
-// 	}
+	for _, trade := range trades {
+		tickerProfit, ok := tickerProfits[trade.Ticker]
+		tradeProfit := trade.GetProfit()
+		if !ok {
+			tickerProfit = &TickerSummary{
+				Ticker:            trade.Ticker,
+				TradeCount:        0,
+				WinningTradeCount: 0,
+				Profit:            0.0,
+			}
 
-// 	sort.SliceStable(keys, func(i, j int) bool {
-// 		return tickerProfits[keys[i]] > tickerProfits[keys[j]]
-// 	})
+			tickerProfits[trade.Ticker] = tickerProfit
 
-// 	tickerProfitStrs := make([]string, len(keys))
+			keys = append(keys, trade.Ticker)
+		}
 
-// 	for i, key := range keys {
-// 		tickerProfitStrs[i] = fmt.Sprintf("%s: $%0.2f", key, tickerProfits[key])
-// 	}
+		tickerProfit.Profit += tradeProfit
+		tickerProfit.TradeCount += 1
+		if tradeProfit > 0 {
+			tickerProfit.WinningTradeCount += 1
+		}
+	}
 
-// 	return tickerProfitStrs
-// }
+	tickerProfitList := make([]*TickerSummary, len(keys))
 
-// func (c *IntradayChart) getTradeDetails(trades []*trading.Trade) []string {
-// 	tradeDetails := make([]string, len(trades))
+	for i, key := range keys {
+		tickerProfitList[i] = tickerProfits[key]
+	}
 
-// 	for i, trade := range trades {
-// 		avgOpenPrice := trade.GetOpeningPriceAvg()
-// 		avgClosePrice := trade.GetClosingPriceAvg()
+	sort.SliceStable(tickerProfitList, func(i, j int) bool {
+		return tickerProfitList[i].Profit > tickerProfitList[j].Profit
+	})
 
-// 		detail := fmt.Sprintf("%d) %s: %d shares ($%0.2f->$%0.2f)   $%0.2f", i+1, trade.Ticker,
-// 			trade.TotalShareCount, avgOpenPrice, avgClosePrice, trade.GetProfit())
-
-// 		tradeDetails[i] = detail
-// 	}
-
-// 	return tradeDetails
-// }
+	return tickerProfitList
+}
 
 func (et *ExtendedTrade) GetOpenTime() string {
 	return et.OpenTime.Format("15:04:05")
@@ -149,8 +155,8 @@ func (et *ExtendedTrade) GetEntryPrice() string {
 	openCount := 0
 
 	for _, trade := range et.Trade.OpenExecutions {
-		openTotal += trade.NetPrice
-		openCount += 1
+		openTotal += (trade.NetPrice * float64(trade.Qty))
+		openCount += trade.Qty
 	}
 
 	return fmt.Sprintf("$%.2f", openTotal/float64(openCount))
@@ -161,9 +167,17 @@ func (et *ExtendedTrade) GetExitPrice() string {
 	exitCount := 0
 
 	for _, trade := range et.Trade.CloseExecutions {
-		exitTotal += trade.NetPrice
-		exitCount += 1
+		exitTotal += (trade.NetPrice * float64(trade.Qty))
+		exitCount += trade.Qty
 	}
 
 	return fmt.Sprintf("$%.2f", math.Abs(exitTotal/float64(exitCount)))
+}
+
+func (ts *TickerSummary) GetWinPercentage() string {
+	return fmt.Sprintf("%.1f %%", (100 * float64(ts.WinningTradeCount) / float64(ts.TradeCount)))
+}
+
+func (ts *TickerSummary) GetProfit() string {
+	return fmt.Sprintf("$%.2f", ts.Profit)
 }

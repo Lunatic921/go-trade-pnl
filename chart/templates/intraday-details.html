@@ -3,9 +3,11 @@
         width: 900px;
     }
 
+    .trade-container {
+        display: flex;
+    }
 
     .trade-grid {
-        width: 470px;
         border: 1px solid rgba(125, 125, 125, 0.3);
         margin: 5px;
     }
@@ -37,6 +39,7 @@
     .trade-row > * {
         border-right: 1px solid rgba(125, 125, 125, 0.3);
         padding: 5px;
+        text-align: right;
     }
 
     .trade-row-ticker {
@@ -67,26 +70,55 @@
         width: 60px;
     }
 
+    .trade-ticker-summary {
+        width: 325px;
+    }
+
+    .trade-row-medium {
+        width: 65px;
+    }
+
+
+
 </style>
 
-<div class="trade-grid">
-    <div class="trade-grid-header">
-        <div class="trade-row-ticker">Ticker</div>
-        <div class="trade-row-profit">P/L</div>
-        <div class="trade-row-entry-time">Time</div>
-        <div class="trade-row-duration">Duration</div>
-        <div class="trade-row-entry-price">Entry Price</div>
-        <div class="trade-row-exit-price">Exit Price</div>
+<div class="trade-container">
+    <div class="trade-grid">
+        <div class="trade-grid-header">
+            <div class="trade-row-ticker">Ticker</div>
+            <div class="trade-row-profit">P/L</div>
+            <div class="trade-row-entry-time">Time</div>
+            <div class="trade-row-duration">Duration</div>
+            <div class="trade-row-entry-price">Entry Price</div>
+            <div class="trade-row-exit-price">Exit Price</div>
+        </div>
+        <div class="trade-scrollable">
+            {{range .Trades}}<div class="trade-row">
+                <div class="trade-row-ticker">{{.Ticker}}</div>
+                <div class="trade-row-profit">{{.GetProfit}}</div>
+                <div class="trade-row-entry-time">{{.GetOpenTime}}</div>
+                <div class="trade-row-duration">{{.GetDuration}}</div>
+                <div class="trade-row-entry-price">{{.GetEntryPrice}}</div>
+                <div class="trade-row-exit-price">{{.GetExitPrice}}</div>
+            </div>{{end}}
+        </div>
     </div>
-    <div class="trade-scrollable">
-        {{range .Trades}}<div class="trade-row">
-            <div class="trade-row-ticker">{{.Ticker}}</div>
-            <div class="trade-row-profit">{{.GetProfit}}</div>
-            <div class="trade-row-entry-time">{{.GetOpenTime}}</div>
-            <div class="trade-row-duration">{{.GetDuration}}</div>
-            <div class="trade-row-entry-price">{{.GetEntryPrice}}</div>
-            <div class="trade-row-exit-price">{{.GetExitPrice}}</div>
-        </div>{{end}}
+    <div class="trade-ticker-summary">
+        <div class="trade-grid">
+            <div class="trade-grid-header">
+                <div class="trade-row-ticker">Ticker</div>
+                <div class="trade-row-medium"># Trades</div>
+                <div class="trade-row-medium">Win %</div>
+                <div class="trade-row-profit">P/L</div>
+            </div>
+            <div class="trade-scrollable">
+                {{range .TickerSummary}}<div class="trade-row">
+                    <div class="trade-row-ticker">{{.Ticker}}</div>
+                    <div class="trade-row-medium">{{.TradeCount}}</div>
+                    <div class="trade-row-medium">{{.GetWinPercentage}}</div>
+                    <div class="trade-row-profit">{{.GetProfit}}</div>
+                </div>{{end}}
+            </div>
+        </div>
     </div>
 </div>
-
