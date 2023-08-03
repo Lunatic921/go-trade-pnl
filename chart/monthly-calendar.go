@@ -14,15 +14,16 @@ type MonthlyCalendar struct {
 }
 
 type TradingDay struct {
-	Day            time.Time
-	FormattedDay   string
-	DayVal         int
-	Profit         string
-	TradeCount     int
-	Wins           int
-	Losses         int
-	WinLossPct     string
-	DayResultClass string
+	Day             time.Time
+	FormattedDay    string
+	DayVal          int
+	Profit          string
+	TradeCount      int
+	Wins            int
+	Losses          int
+	WinLossPct      string
+	DayResultClass  string
+	DollarsPerShare string
 }
 
 type CalendarWeek struct {
@@ -95,16 +96,21 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			winLossPct = (float64(dailyWins) / float64(len(dailyTrades))) * 100.0
 		}
 
+		sharesTradedOnDay := float64(c.Portfolio.GetSharesTradedPerDay(calDay)) / float64(len(c.Portfolio.GetTradesByDay(calDay)))
+
+		dollarsPerShare := dailyProfit / sharesTradedOnDay
+
 		newWeek.Days = append(newWeek.Days, TradingDay{
-			Day:            calDay,
-			DayVal:         calDay.Day(),
-			Profit:         profitStr,
-			TradeCount:     len(dailyTrades),
-			Wins:           dailyWins,
-			Losses:         len(dailyTrades) - dailyWins,
-			WinLossPct:     fmt.Sprintf("%.2f", winLossPct),
-			DayResultClass: dayResultClasses,
-			FormattedDay:   calDay.Format("2006-01-02"),
+			Day:             calDay,
+			DayVal:          calDay.Day(),
+			Profit:          profitStr,
+			TradeCount:      len(dailyTrades),
+			Wins:            dailyWins,
+			Losses:          len(dailyTrades) - dailyWins,
+			WinLossPct:      fmt.Sprintf("%.2f", winLossPct),
+			DayResultClass:  dayResultClasses,
+			FormattedDay:    calDay.Format("2006-01-02"),
+			DollarsPerShare: fmt.Sprintf("$%.2f", dollarsPerShare),
 		})
 	}
 
@@ -115,22 +121,27 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 	winRate := fmt.Sprintf("%.2f%%", (float64(monthlyWins)/float64(monthlyTrades))*100.0)
 	dailyAvg := fmt.Sprintf("$%.2f", monthlyProfit/float64(daysTraded))
 
+	sharesPerTrade := float64(c.Portfolio.GetSharesTradedByMonth(c.Month)) / float64(monthlyTrades)
+	dollarsPerShareMonth := fmt.Sprintf("$%.2f", (monthlyProfit/sharesPerTrade)/float64(daysTraded))
+
 	data := struct {
-		Weeks         []CalendarWeek
-		MonthlyProfit string
-		WinRate       string
-		WinningTrades int
-		TotalTrades   int
-		DailyAvg      string
-		DailyTrades   int
+		Weeks                  []CalendarWeek
+		MonthlyProfit          string
+		MonthlyDollarsPerShare string
+		WinRate                string
+		WinningTrades          int
+		TotalTrades            int
+		DailyAvg               string
+		DailyTrades            int
 	}{
-		Weeks:         calWeeks,
-		MonthlyProfit: fmt.Sprintf("$%.2f", monthlyProfit),
-		WinRate:       winRate,
-		WinningTrades: monthlyWins,
-		TotalTrades:   monthlyTrades,
-		DailyAvg:      dailyAvg,
-		DailyTrades:   monthlyTrades / daysTraded,
+		Weeks:                  calWeeks,
+		MonthlyProfit:          fmt.Sprintf("$%.2f", monthlyProfit),
+		MonthlyDollarsPerShare: dollarsPerShareMonth,
+		WinRate:                winRate,
+		WinningTrades:          monthlyWins,
+		TotalTrades:            monthlyTrades,
+		DailyAvg:               dailyAvg,
+		DailyTrades:            monthlyTrades / daysTraded,
 	}
 
 	tmpl.Execute(w, data)

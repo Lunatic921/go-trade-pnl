@@ -51,6 +51,18 @@ func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
 	return trades
 }
 
+func (p *Portfolio) GetSharesTradedPerDay(day time.Time) int {
+	sharesTraded := 0
+
+	for _, trade := range p.GetTrades() {
+		if trade.CloseTime.Year() == day.Year() && trade.CloseTime.Month() == day.Month() && trade.CloseTime.Day() == day.Day() {
+			sharesTraded += trade.TotalShareCount
+		}
+	}
+
+	return sharesTraded
+}
+
 func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {
 	trades := make([]Trade, 0, 3100)
 
@@ -62,6 +74,18 @@ func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {
 	}
 
 	return trades
+}
+
+func (p *Portfolio) GetSharesTradedByMonth(month time.Time) int {
+	sharesTraded := 0
+
+	for _, trade := range p.GetTrades() {
+		if trade.CloseTime.Year() == month.Year() && trade.CloseTime.Month() == month.Month() {
+			sharesTraded += trade.TotalShareCount
+		}
+	}
+
+	return sharesTraded
 }
 
 func (p *Portfolio) GetTradesByYear(year time.Time) []Trade {

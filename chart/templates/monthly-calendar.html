@@ -66,6 +66,7 @@
 
 <div class="banner">
     <div>Month P/L: {{.MonthlyProfit}}</div>
+    <div>Monthly $/Share: {{.MonthlyDollarsPerShare}}</div>
     <div>Win Rate: {{.WinRate}}&nbsp;({{.WinningTrades}}/{{.TotalTrades}})</div>
     <div>Daily Average: {{.DailyAvg}}</div>
     <div>Daily Trades: {{.DailyTrades}}</div>
@@ -87,6 +88,7 @@
             <div class="calendar-cell-middle">{{ .Profit }}</div>
             <div class="calendar-cell-bottom">
                 <div class="trade-count">Trades: {{ .TradeCount }} ({{ .WinLossPct }}%)</div>
+                <div class="trade-dollars-per-share">$/share: {{ .DollarsPerShare }}</div>
                 <div class="trade-breakdown">Wins: {{ .Wins }}&nbsp;&nbsp;&nbsp;Losses: {{ .Losses }}</div>
             </div>
         </div>{{end}}
