@@ -28,81 +28,24 @@ func (p *Portfolio) GetTradeCount(excludeSwing bool) int {
 	return len(p.GetTrades())
 }
 
-func (p *Portfolio) GetProfitByDay(day time.Time) float64 {
-	trades := p.GetTradesByDay(day)
-	profit := 0.0
+func (p *Portfolio) GetSharesTraded(year int, month int, day int) int {
+	sharesTraded := 0
+
+	trades := p.FilterTrades(year, month, day)
 
 	for _, trade := range trades {
-		profit += trade.GetProfit()
-	}
-
-	return profit
-}
-
-func (p *Portfolio) GetTradesByDay(day time.Time) []*Trade {
-	trades := make([]*Trade, 0, 100)
-
-	for _, trade := range p.GetTrades() {
-		if trade.CloseTime.Year() == day.Year() && trade.CloseTime.Month() == day.Month() && trade.CloseTime.Day() == day.Day() {
-			trades = append(trades, trade)
-		}
-	}
-
-	return trades
-}
-
-func (p *Portfolio) GetSharesTradedPerDay(day time.Time) int {
-	sharesTraded := 0
-
-	for _, trade := range p.GetTrades() {
-		if trade.CloseTime.Year() == day.Year() && trade.CloseTime.Month() == day.Month() && trade.CloseTime.Day() == day.Day() {
-			sharesTraded += trade.TotalShareCount
-		}
+		sharesTraded += trade.TotalShareCount
 	}
 
 	return sharesTraded
 }
 
-func (p *Portfolio) GetTradesByMonth(month time.Time) []Trade {
-	trades := make([]Trade, 0, 3100)
+func (p *Portfolio) GetTradingDays(year int, month int, day int) []time.Time {
+	days := make([]time.Time, 0)
 
-	for _, trade := range p.GetTrades() {
+	trades := p.FilterTrades(year, month, day)
 
-		if trade.CloseTime.Year() == month.Year() && trade.CloseTime.Month() == month.Month() {
-			trades = append(trades, *trade)
-		}
-	}
-
-	return trades
-}
-
-func (p *Portfolio) GetSharesTradedByMonth(month time.Time) int {
-	sharesTraded := 0
-
-	for _, trade := range p.GetTrades() {
-		if trade.CloseTime.Year() == month.Year() && trade.CloseTime.Month() == month.Month() {
-			sharesTraded += trade.TotalShareCount
-		}
-	}
-
-	return sharesTraded
-}
-
-func (p *Portfolio) GetTradesByYear(year time.Time) []Trade {
-	trades := make([]Trade, 0, 40000)
-	for _, trade := range p.GetTrades() {
-		if trade.CloseTime.Year() == year.Year() {
-			trades = append(trades, *trade)
-		}
-	}
-
-	return trades
-}
-
-func (p *Portfolio) GetTradingDays() []time.Time {
-	days := make([]time.Time, 0, 365)
-
-	for _, trade := range p.GetTrades() {
+	for _, trade := range trades {
 		foundDay := false
 
 		loc, _ := time.LoadLocation("America/Phoenix")
@@ -148,6 +91,65 @@ func (p *Portfolio) GetTrades() Trades {
 
 		return dayTrades
 	}
+}
+
+func (p *Portfolio) GetTradePl(year int, month int, day int) float64 {
+	return p.GetProfit(year, -1, -1) / float64(len(p.FilterTrades(year, month, day)))
+}
+
+func (p *Portfolio) FilterTrades(year int, month int, day int) Trades {
+	// -1 for any input variable means ignore it
+
+	trades := make(Trades, 0)
+
+	for _, trade := range p.Trades {
+		fitsYear := year == -1 || trade.CloseTime.Year() == year
+		fitsMonth := month == -1 || int(trade.CloseTime.Month()) == month
+		fitsDay := day == -1 || trade.CloseTime.Day() == day
+
+		if fitsYear && fitsMonth && fitsDay && !trade.isOpen() {
+			if p.IncludeSwing || !trade.IsSwing() {
+				trades = append(trades, trade)
+			}
+		}
+	}
+
+	return trades
+}
+
+func (p *Portfolio) GetWinPercentage(year int, month int, day int) float64 {
+	wins := 0.0
+	tradeCount := 0.0
+
+	trades := p.FilterTrades(year, month, day)
+
+	for _, trade := range trades {
+		if trade.GetProfit() >= 0.0 {
+			wins += 1.0
+		}
+
+		tradeCount += 1.0
+	}
+
+	return wins / tradeCount
+}
+
+func (p *Portfolio) GetProfit(year int, month int, day int) float64 {
+	runningPl := 0.0
+
+	trades := p.FilterTrades(year, month, day)
+
+	for _, trade := range trades {
+		runningPl += trade.GetProfit()
+	}
+
+	return runningPl
+}
+
+func (p *Portfolio) GetProfitPerShare(year int, month int, day int) float64 {
+	sharesTraded := float64(p.GetSharesTraded(year, month, day))
+
+	return sharesTraded / float64(len(p.FilterTrades(year, month, day)))
 }
 
 func (p *Portfolio) parseTradeDirectory() {

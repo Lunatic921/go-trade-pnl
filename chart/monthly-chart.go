@@ -20,7 +20,7 @@ func (c *MonthlyChart) Draw(w io.Writer) error {
 	startDay := time.Date(c.Month.Year(), c.Month.Month(), 1, 0, 0, 0, 0, loc)
 	nextMonth := time.Date(c.Month.Year(), c.Month.Month()+1, 1, 0, 0, 0, 0, loc)
 
-	monthsTrades := c.Portfolio.GetTradesByMonth(c.Month)
+	monthsTrades := c.Portfolio.FilterTrades(c.Month.Year(), int(c.Month.Month()), -1)
 
 	var tradeTimeAxisData []string
 	var tradeProfitChartData []opts.LineData

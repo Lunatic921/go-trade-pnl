@@ -1,0 +1,43 @@
+<style>
+    .container {
+        width: 900px;
+    }
+
+    .stat-container {
+        display: flex;
+    }
+
+    .stat-grid {
+        margin: 5px;
+
+        font-size: 16pt;
+    }
+
+    .stat-grid-row {
+        display: flex;
+    }
+
+    .stat-grid-label {
+        width: 150px;
+        text-align: right;
+    }
+
+    .stat-grid-value {
+        width: 40px;
+    }
+    
+</style>
+
+
+<div class="stat-container">
+    <div class="stat-grid">
+        {{range .Stats}}<div class="stat-grid-row">
+            <div class="stat-grid-label">
+                {{.StatName}}:&nbsp;&nbsp;
+            </div>
+            <div class="stat-grid-value">
+                {{.StatValue}}
+            </div>
+        </div>{{end}}
+    </div>
+</div>

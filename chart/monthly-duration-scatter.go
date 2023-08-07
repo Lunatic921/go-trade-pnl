@@ -23,7 +23,7 @@ func (c *MonthlyDurationScatterChart) Draw(w io.Writer) error {
 
 	c.Scatter = charts.NewScatter()
 
-	monthsTrades := c.Portfolio.GetTradesByMonth(c.Month)
+	monthsTrades := c.Portfolio.FilterTrades(c.Month.Year(), int(c.Month.Month()), -1)
 	sort.Slice(monthsTrades, func(i, j int) bool {
 		return monthsTrades[i].GetDuration().Seconds() < monthsTrades[j].GetDuration().Seconds()
 	})

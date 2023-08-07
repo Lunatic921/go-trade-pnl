@@ -30,13 +30,13 @@ func (c *TimeOfDayChart) Draw(w io.Writer) error {
 		c.tradesByTimeOfDay[interval] = make([]trading.Trade, 0)
 	}
 
-	trades := c.Portfolio.GetTradesByMonth(c.Month)
+	trades := c.Portfolio.FilterTrades(c.Month.Year(), int(c.Month.Month()), -1)
 	for _, trade := range trades {
 		tradeTime := trade.OpenTime.In(easternTimezone)
 		for i, interval := range intervals {
 			if tradeTime.Hour() >= interval.Hour() && tradeTime.Minute() >= interval.Minute() {
 				if i+1 < len(intervals) && (intervals[i+1].Hour() > tradeTime.Hour() || (intervals[i+1].Hour() == tradeTime.Hour() && intervals[i+1].Minute() > tradeTime.Minute())) {
-					c.tradesByTimeOfDay[interval] = append(c.tradesByTimeOfDay[interval], trade)
+					c.tradesByTimeOfDay[interval] = append(c.tradesByTimeOfDay[interval], *trade)
 					break
 				}
 			}

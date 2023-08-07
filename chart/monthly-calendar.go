@@ -57,8 +57,8 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			continue
 		}
 
-		dailyTrades := c.Portfolio.GetTradesByDay(calDay)
-		dailyProfit := c.Portfolio.GetProfitByDay(calDay)
+		dailyTrades := c.Portfolio.FilterTrades(calDay.Year(), int(calDay.Month()), calDay.Day())
+		dailyProfit := c.Portfolio.GetProfit(calDay.Year(), int(calDay.Month()), calDay.Day())
 
 		monthlyProfit += dailyProfit
 
@@ -96,7 +96,9 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			winLossPct = (float64(dailyWins) / float64(len(dailyTrades))) * 100.0
 		}
 
-		sharesTradedOnDay := float64(c.Portfolio.GetSharesTradedPerDay(calDay)) / float64(len(c.Portfolio.GetTradesByDay(calDay)))
+		numberOfDailyTrades := float64(len(c.Portfolio.FilterTrades(calDay.Year(), int(calDay.Month()), calDay.Day())))
+
+		sharesTradedOnDay := float64(c.Portfolio.GetSharesTraded(calDay.Year(), int(calDay.Month()), calDay.Day())) / numberOfDailyTrades
 
 		dollarsPerShare := dailyProfit / sharesTradedOnDay
 
@@ -121,7 +123,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 	winRate := fmt.Sprintf("%.2f%%", (float64(monthlyWins)/float64(monthlyTrades))*100.0)
 	dailyAvg := fmt.Sprintf("$%.2f", monthlyProfit/float64(daysTraded))
 
-	sharesPerTrade := float64(c.Portfolio.GetSharesTradedByMonth(c.Month)) / float64(monthlyTrades)
+	sharesPerTrade := float64(c.Portfolio.GetSharesTraded(c.Month.Year(), int(c.Month.Month()), -1)) / float64(monthlyTrades)
 	dollarsPerShareMonth := fmt.Sprintf("$%.2f", (monthlyProfit/sharesPerTrade)/float64(daysTraded))
 
 	data := struct {

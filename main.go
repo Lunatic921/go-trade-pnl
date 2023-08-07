@@ -15,7 +15,7 @@ func main() {
 
 	p := trading.NewPortfolio(*historyFilePathPtr)
 
-	tradingDays := p.GetTradingDays()
+	tradingDays := p.GetTradingDays(-1, -1, -1)
 
 	for _, date := range tradingDays {
 		intraDayChart := &chart.IntradayChart{Day: date, Portfolio: p}

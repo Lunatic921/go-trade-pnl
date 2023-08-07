@@ -1,9 +1,11 @@
 package chart
 
 import (
+	"fmt"
 	"go-trade-pnl/trading"
 	"io"
 	"sort"
+	"text/template"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -16,6 +18,13 @@ type YearlyChart struct {
 	Portfolio *trading.Portfolio
 }
 
+type YearlyStat struct {
+	StatName  string
+	StatValue string
+}
+
+const yearlyStatsTmplPath = "chart/templates/year-stats.html"
+
 func (c *YearlyChart) Draw(w io.Writer) error {
 	timeNow := time.Now()
 	_, weekOfYear := timeNow.ISOWeek()
@@ -25,7 +34,7 @@ func (c *YearlyChart) Draw(w io.Writer) error {
 	}
 	profitsByWeek := make([]float64, weekOfYear)
 
-	tradesThisYear := c.Portfolio.GetTradesByYear(c.Year)
+	tradesThisYear := c.Portfolio.FilterTrades(c.Year.Year(), -1, -1)
 
 	sort.Slice(tradesThisYear, func(i, j int) bool {
 		return tradesThisYear[i].CloseTime.Compare(tradesThisYear[j].CloseTime) == -1
@@ -65,9 +74,42 @@ func (c *YearlyChart) Draw(w io.Writer) error {
 
 	c.Line.Render(w)
 
+	data := struct {
+		Stats []YearlyStat
+	}{
+		Stats: c.getYearlyStats(),
+	}
+
+	tmpl := template.Must(template.ParseFiles(yearlyStatsTmplPath))
+	err := tmpl.Execute(w, data)
+	if err != nil {
+		fmt.Printf("Err: %s\n", err.Error())
+	}
+
 	return nil
 }
 
 func (c *YearlyChart) SetTradeMode(includeSwings bool) {
 	c.Portfolio.IncludeSwing = includeSwings
+}
+
+func (c *YearlyChart) getYearlyStats() []YearlyStat {
+
+	yearProfit := c.Portfolio.GetProfit(c.Year.Year(), -1, -1)
+	tradingDays := c.Portfolio.GetTradingDays(c.Year.Year(), -1, -1)
+	avgDailyPl := fmt.Sprintf("$%0.2f", yearProfit/float64(len(tradingDays)))
+	dailyProfitPerShare := fmt.Sprintf("$%0.2f", c.Portfolio.GetProfitPerShare(c.Year.Year(), -1, -1)/float64(len(tradingDays)))
+	avgTradePl := fmt.Sprintf("$%0.4f", c.Portfolio.GetTradePl(c.Year.Year(), -1, -1))
+
+	stats := []YearlyStat{
+		{StatName: "Trading Days", StatValue: fmt.Sprintf("%d", len(tradingDays))},
+		{StatName: "Trades", StatValue: fmt.Sprintf("%d", len(c.Portfolio.FilterTrades(c.Year.Year(), -1, -1)))},
+		{StatName: "Total P/L", StatValue: fmt.Sprintf("$%0.2f", yearProfit)},
+		{StatName: "Trade P/L", StatValue: avgTradePl},
+		{StatName: "Win Pct", StatValue: fmt.Sprintf("%.2f%%", 100.0*c.Portfolio.GetWinPercentage(c.Year.Year(), -1, -1))},
+		{StatName: "Daily P/L", StatValue: avgDailyPl},
+		{StatName: "Daily $/Share", StatValue: dailyProfitPerShare},
+	}
+
+	return stats
 }

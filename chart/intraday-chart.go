@@ -34,7 +34,7 @@ const intraDayTmplPath = "chart/templates/intraday-details.html"
 
 func (c *IntradayChart) Draw(w io.Writer) error {
 
-	trades := c.Portfolio.GetTradesByDay(c.Day)
+	trades := c.Portfolio.FilterTrades(c.Day.Year(), int(c.Day.Month()), c.Day.Day())
 
 	sort.SliceStable(trades, func(i, j int) bool {
 		return trades[i].CloseTime.Compare(trades[j].CloseTime) == -1
