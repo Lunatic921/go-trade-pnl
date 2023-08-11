@@ -16,6 +16,6 @@ func main() {
 
 	server.AddContentUpdater(&server.TradingJournalUpdater{Directory: *historyFilePathPtr, Server: &server.TradeServer{}}, updateStream)
 
-	srv := &http.Server{Addr: fmt.Sprintf("localhost:%d", 37777)}
+	srv := &http.Server{Addr: fmt.Sprintf(":%d", 37777)}
 	srv.ListenAndServe()
 }
