@@ -24,10 +24,6 @@ func NewPortfolio(directory string) *Portfolio {
 	return p
 }
 
-func (p *Portfolio) GetTradeCount(excludeSwing bool) int {
-	return len(p.GetTrades())
-}
-
 func (p *Portfolio) GetSharesTraded(year int, month int, day int) int {
 	sharesTraded := 0
 

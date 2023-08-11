@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"go-trade-pnl/chart"
 	"net/http"
 )
@@ -19,10 +18,21 @@ func (t *TradePage) httpServer(w http.ResponseWriter, r *http.Request) {
 	t.Chart.Draw(w)
 }
 
-func (t *TradePage) CreatePath(path string, chart chart.Chart) {
-	http.HandleFunc(path, t.httpServer)
+type TradeServer struct {
+	pages map[string]TradePage
 }
 
-func Serve(port int) {
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+func (srv *TradeServer) CreatePath(path string, page TradePage) {
+
+	if srv.pages == nil {
+		srv.pages = make(map[string]TradePage)
+	}
+
+	existingPage, ok := srv.pages[path]
+	if !ok {
+		srv.pages[path] = page
+		http.HandleFunc(path, page.httpServer)
+	} else {
+		existingPage.Chart = page.Chart
+	}
 }
