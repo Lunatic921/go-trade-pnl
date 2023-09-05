@@ -116,7 +116,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		})
 	}
 
-	if len(newWeek.Days) > 0 && len(newWeek.Days) < 7 {
+	if len(newWeek.Days) > 0 && len(newWeek.Days) <= 7 {
 		calWeeks = append(calWeeks, newWeek)
 	}
 
