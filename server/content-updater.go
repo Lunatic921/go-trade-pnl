@@ -33,7 +33,8 @@ func (tju *TradingJournalUpdater) Monitor(updateStream chan any) {
 
 	for {
 		select {
-		case <-dirWatcher.Event:
+		case event := <-dirWatcher.Event:
+			fmt.Printf("Found a change: %+v\n", event)
 			tju.Update()
 			updateStream <- true
 		case error := <-dirWatcher.Error:
@@ -56,7 +57,7 @@ func (tju *TradingJournalUpdater) Update() {
 	for _, date := range tradingDays {
 		intraDayChart := &chart.IntradayChart{Day: date, Portfolio: p}
 		page := TradePage{Chart: intraDayChart}
-		srv.CreatePath(fmt.Sprintf("/%s", date.Format("2006-01-02")), page)
+		srv.CreatePath(fmt.Sprintf("/%s", date.Format("2006-01-02")), &page)
 	}
 
 	loc, _ := time.LoadLocation("America/Phoenix")
@@ -66,27 +67,27 @@ func (tju *TradingJournalUpdater) Update() {
 	for currentMonth := time.Date(tradingDays[0].Year(), tradingDays[0].Month(), 1, 0, 0, 0, 0, loc); currentMonth.Before(monthAfterEndMonth); currentMonth = currentMonth.AddDate(0, 1, 0) {
 		monthFormatted := currentMonth.Format("2006-01")
 		monthlyChart := &chart.MonthlyChart{Month: currentMonth, Portfolio: p}
-		page := TradePage{Chart: monthlyChart}
+		page := &TradePage{Chart: monthlyChart}
 		srv.CreatePath(fmt.Sprintf("/%s", monthFormatted), page)
 
 		monthlyCalendar := &chart.MonthlyCalendar{Month: currentMonth, Portfolio: p}
-		page = TradePage{Chart: monthlyCalendar}
+		page = &TradePage{Chart: monthlyCalendar}
 		srv.CreatePath(fmt.Sprintf("/calendar/%s", monthFormatted), page)
 
 		monthlyProfitPrice := &chart.MonthlyPriceProfitChart{Month: currentMonth, Portfolio: p}
-		page = TradePage{Chart: monthlyProfitPrice}
+		page = &TradePage{Chart: monthlyProfitPrice}
 		srv.CreatePath(fmt.Sprintf("/profitprice/%s", monthFormatted), page)
 
 		monthlySharePrice := &chart.MonthlyPriceShareChart{Month: currentMonth, Portfolio: p}
-		page = TradePage{Chart: monthlySharePrice}
+		page = &TradePage{Chart: monthlySharePrice}
 		srv.CreatePath(fmt.Sprintf("/shareprice/%s", monthFormatted), page)
 
 		timeOfDayChart := &chart.TimeOfDayChart{Month: currentMonth, Portfolio: p}
-		page = TradePage{Chart: timeOfDayChart}
+		page = &TradePage{Chart: timeOfDayChart}
 		srv.CreatePath(fmt.Sprintf("/tod/%s", currentMonth.Format("2006-01")), page)
 
 		durationChart := &chart.MonthlyDurationScatterChart{Month: currentMonth, Portfolio: p}
-		page = TradePage{Chart: durationChart}
+		page = &TradePage{Chart: durationChart}
 		srv.CreatePath(fmt.Sprintf("/duration/%s", currentMonth.Format("2006-01")), page)
 	}
 
@@ -95,7 +96,7 @@ func (tju *TradingJournalUpdater) Update() {
 
 	for currYear := firstYear; currYear.Before(yearAfterLastYear); currYear = currYear.AddDate(1, 0, 0) {
 		yearlyChart := &chart.YearlyChart{Year: currYear, Portfolio: p}
-		page := TradePage{Chart: yearlyChart}
+		page := &TradePage{Chart: yearlyChart}
 		srv.CreatePath(fmt.Sprintf("/%s", currYear.Format("2006")), page)
 	}
 }

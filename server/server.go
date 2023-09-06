@@ -19,13 +19,13 @@ func (t *TradePage) httpServer(w http.ResponseWriter, r *http.Request) {
 }
 
 type TradeServer struct {
-	pages map[string]TradePage
+	pages map[string]*TradePage
 }
 
-func (srv *TradeServer) CreatePath(path string, page TradePage) {
+func (srv *TradeServer) CreatePath(path string, page *TradePage) {
 
 	if srv.pages == nil {
-		srv.pages = make(map[string]TradePage)
+		srv.pages = make(map[string]*TradePage)
 	}
 
 	existingPage, ok := srv.pages[path]
