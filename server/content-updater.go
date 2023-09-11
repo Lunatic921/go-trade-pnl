@@ -12,13 +12,13 @@ import (
 )
 
 type ContentUpdater interface {
-	Monitor(updateStream chan any)
+	Monitor()
 	Update()
 }
 
-func AddContentUpdater(updater ContentUpdater, updateStream chan any) {
+func AddContentUpdater(updater ContentUpdater) {
 	updater.Update()
-	go updater.Monitor(updateStream)
+	go updater.Monitor()
 }
 
 type TradingJournalUpdater struct {
@@ -26,7 +26,7 @@ type TradingJournalUpdater struct {
 	Server    *TradeServer
 }
 
-func (tju *TradingJournalUpdater) Monitor(updateStream chan any) {
+func (tju *TradingJournalUpdater) Monitor() {
 	dirWatcher := watcher.New()
 	dirWatcher.Add(tju.Directory)
 	go dirWatcher.Start(time.Second * 5)
@@ -36,7 +36,6 @@ func (tju *TradingJournalUpdater) Monitor(updateStream chan any) {
 		case event := <-dirWatcher.Event:
 			fmt.Printf("Found a change: %+v\n", event)
 			tju.Update()
-			updateStream <- true
 		case error := <-dirWatcher.Error:
 			fmt.Printf("Error watching: %+v\n", error)
 			os.Exit(1)

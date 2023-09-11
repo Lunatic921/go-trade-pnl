@@ -12,9 +12,7 @@ func main() {
 	historyFilePathPtr := flag.String("trades", "", "TOS trade history")
 	flag.Parse()
 
-	updateStream := make(chan any, 1)
-
-	server.AddContentUpdater(&server.TradingJournalUpdater{Directory: *historyFilePathPtr, Server: &server.TradeServer{}}, updateStream)
+	server.AddContentUpdater(&server.TradingJournalUpdater{Directory: *historyFilePathPtr, Server: &server.TradeServer{}})
 
 	fmt.Printf("Starting TradeWiz Server\n")
 
