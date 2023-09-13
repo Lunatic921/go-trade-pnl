@@ -207,7 +207,7 @@ func (p *Portfolio) parseTradeFile(filePath string) {
 		price, _ := strconv.ParseFloat(record[10], 64)
 		netPrice, _ := strconv.ParseFloat(record[11], 64)
 
-		trades = append(trades, TradeExecution{
+		tradeExec := TradeExecution{
 			ExecTime:  execTime,
 			Spread:    record[2],
 			Side:      TradeSide(record[3]),
@@ -220,7 +220,14 @@ func (p *Portfolio) parseTradeFile(filePath string) {
 			Price:     price,
 			NetPrice:  netPrice,
 			OrderType: record[12],
-		})
+		}
+
+		if tradeExec.Strike == "" {
+			trades = append(trades, tradeExec)
+		} else {
+			fmt.Printf("Skipping option trade: %+v\n", tradeExec)
+		}
+
 	}
 
 	sort.Sort(trades)
