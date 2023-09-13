@@ -224,8 +224,6 @@ func (p *Portfolio) parseTradeFile(filePath string) {
 
 		if tradeExec.Strike == "" {
 			trades = append(trades, tradeExec)
-		} else {
-			fmt.Printf("Skipping option trade: %+v\n", tradeExec)
 		}
 
 	}
