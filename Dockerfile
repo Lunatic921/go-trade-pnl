@@ -2,7 +2,7 @@
 FROM golang:latest
 
 # Set the working directory inside the container
-WORKDIR /app
+WORKDIR /tradewiz
 
 # Install git to clone the repository
 RUN apt-get update && apt-get install -y git
@@ -11,13 +11,14 @@ RUN apt-get update && apt-get install -y git
 RUN git clone https://github.com/Lunatic921/go-trade-pnl
 
 # Set the working directory to the cloned repository
-WORKDIR /app/go-trade-pnl
+WORKDIR /tradewiz/go-trade-pnl
 
 # Build the Go program
-RUN go build -o app .
+RUN go build -o ../tw .
+
+RUN mkdir /tradewiz/trades
+
+VOLUME /tradewiz/trades
 
 # Set the entry point for the container
-ENTRYPOINT ["./app"]
-
-# Default command to run the program with the -trades argument and path
-CMD ["-trades", "/app/volume_path"]
+ENTRYPOINT ["/tradewiz/tw", "-trades", "/tradewiz/trades"]
