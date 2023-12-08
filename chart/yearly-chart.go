@@ -97,12 +97,15 @@ func (c *YearlyChart) getYearlyStats() []YearlyStat {
 
 	yearProfit := c.Portfolio.GetProfit(c.Year.Year(), -1, -1)
 	tradingDays := c.Portfolio.GetTradingDays(c.Year.Year(), -1, -1)
+	greenDays, redDays := c.Portfolio.GetGreenVsRedDays(c.Year.Year(), -1, -1)
 	avgDailyPl := fmt.Sprintf("$%0.2f", yearProfit/float64(len(tradingDays)))
 	dailyProfitPerShare := fmt.Sprintf("$%0.2f", c.Portfolio.GetProfitPerShare(c.Year.Year(), -1, -1)/float64(len(tradingDays)))
 	avgTradePl := fmt.Sprintf("$%0.4f", c.Portfolio.GetTradePl(c.Year.Year(), -1, -1))
 
 	stats := []YearlyStat{
 		{StatName: "Trading Days", StatValue: fmt.Sprintf("%d", len(tradingDays))},
+		{StatName: "Green Days", StatValue: fmt.Sprintf("%d", greenDays)},
+		{StatName: "Red Days", StatValue: fmt.Sprintf("%d", redDays)},
 		{StatName: "Trades", StatValue: fmt.Sprintf("%d", len(c.Portfolio.FilterTrades(c.Year.Year(), -1, -1)))},
 		{StatName: "Total P/L", StatValue: fmt.Sprintf("$%0.2f", yearProfit)},
 		{StatName: "Trade P/L", StatValue: avgTradePl},

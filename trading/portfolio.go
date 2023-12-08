@@ -69,6 +69,41 @@ func (p *Portfolio) GetTradingDays(year int, month int, day int) []time.Time {
 	return days
 }
 
+func (p *Portfolio) GetGreenVsRedDays(year int, month int, day int) (greenDays int, redDays int) {
+	greenDays = 0
+	redDays = 0
+
+	trades := p.FilterTrades(year, month, day)
+
+	dailyProfitLoss := 0.0
+	currDay := trades[0].OpenTime
+
+	for _, trade := range trades {
+		if trade.OpenTime.Year() != currDay.Year() || trade.OpenTime.Month() != currDay.Month() || trade.OpenTime.Day() != currDay.Day() {
+			currDay = trade.OpenTime
+
+			if dailyProfitLoss >= 0.0 {
+				greenDays += 1
+			} else {
+				redDays += 1
+			}
+
+			dailyProfitLoss = 0
+		}
+
+		dailyProfitLoss += trade.GetProfit()
+	}
+
+	//Last day counted here
+	if dailyProfitLoss >= 0.0 {
+		greenDays += 1
+	} else {
+		redDays += 1
+	}
+
+	return greenDays, redDays
+}
+
 func (p *Portfolio) GetTrades() Trades {
 	if p.IncludeSwing {
 		return p.Trades

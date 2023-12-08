@@ -126,9 +126,13 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 	sharesPerTrade := float64(c.Portfolio.GetSharesTraded(c.Month.Year(), int(c.Month.Month()), -1)) / float64(monthlyTrades)
 	dollarsPerShareMonth := fmt.Sprintf("$%.2f", (monthlyProfit/sharesPerTrade)/float64(daysTraded))
 
+	greenDays, redDays := c.Portfolio.GetGreenVsRedDays(c.Month.Year(), int(c.Month.Month()), -1)
+
 	data := struct {
 		Weeks                  []CalendarWeek
 		MonthlyProfit          string
+		GreenDays              int
+		RedDays                int
 		MonthlyDollarsPerShare string
 		WinRate                string
 		WinningTrades          int
@@ -138,6 +142,8 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 	}{
 		Weeks:                  calWeeks,
 		MonthlyProfit:          fmt.Sprintf("$%.2f", monthlyProfit),
+		GreenDays:              greenDays,
+		RedDays:                redDays,
 		MonthlyDollarsPerShare: dollarsPerShareMonth,
 		WinRate:                winRate,
 		WinningTrades:          monthlyWins,
