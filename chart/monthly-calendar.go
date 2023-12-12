@@ -14,16 +14,16 @@ type MonthlyCalendar struct {
 }
 
 type TradingDay struct {
-	Day             time.Time
-	FormattedDay    string
-	DayVal          int
-	Profit          string
-	TradeCount      int
-	Wins            int
-	Losses          int
-	WinLossPct      string
-	DayResultClass  string
-	DollarsPerShare string
+	Day            time.Time
+	FormattedDay   string
+	DayVal         int
+	Profit         string
+	TradeCount     int
+	Wins           int
+	Losses         int
+	WinLossPct     string
+	DayResultClass string
+	SharesPerTrade int
 }
 
 type CalendarWeek struct {
@@ -39,7 +39,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 	var calWeeks []CalendarWeek
 	newWeek := CalendarWeek{}
 	monthlyProfit := 0.0
-	monthlyWins, monthlyTrades, daysTraded := 0, 0, 0
+	monthlyWins, monthlyTrades, daysTraded, monthlyShares := 0, 0, 0, 0
 
 	for _, calDay := range calDays {
 		if len(newWeek.Days) == 7 {
@@ -87,6 +87,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 			}
 
 			monthlyTrades++
+			monthlyShares += trade.TotalShareCount
 		}
 
 		monthlyWins += dailyWins
@@ -98,21 +99,24 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 
 		numberOfDailyTrades := float64(len(c.Portfolio.FilterTrades(calDay.Year(), int(calDay.Month()), calDay.Day())))
 
-		sharesTradedOnDay := float64(c.Portfolio.GetSharesTraded(calDay.Year(), int(calDay.Month()), calDay.Day())) / numberOfDailyTrades
+		sharesTradedThisDay := float64(c.Portfolio.GetSharesTraded(calDay.Year(), int(calDay.Month()), calDay.Day()))
 
-		dollarsPerShare := dailyProfit / sharesTradedOnDay
+		sharesPerTrade := 0
+		if len(dailyTrades) > 0 {
+			sharesPerTrade = int(sharesTradedThisDay) / int(numberOfDailyTrades)
+		}
 
 		newWeek.Days = append(newWeek.Days, TradingDay{
-			Day:             calDay,
-			DayVal:          calDay.Day(),
-			Profit:          profitStr,
-			TradeCount:      len(dailyTrades),
-			Wins:            dailyWins,
-			Losses:          len(dailyTrades) - dailyWins,
-			WinLossPct:      fmt.Sprintf("%.2f", winLossPct),
-			DayResultClass:  dayResultClasses,
-			FormattedDay:    calDay.Format("2006-01-02"),
-			DollarsPerShare: fmt.Sprintf("$%.2f", dollarsPerShare),
+			Day:            calDay,
+			DayVal:         calDay.Day(),
+			Profit:         profitStr,
+			TradeCount:     len(dailyTrades),
+			Wins:           dailyWins,
+			Losses:         len(dailyTrades) - dailyWins,
+			WinLossPct:     fmt.Sprintf("%.2f", winLossPct),
+			DayResultClass: dayResultClasses,
+			FormattedDay:   calDay.Format("2006-01-02"),
+			SharesPerTrade: sharesPerTrade,
 		})
 	}
 
@@ -139,6 +143,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		TotalTrades            int
 		DailyAvg               string
 		DailyTrades            int
+		AverageShares          string
 	}{
 		Weeks:                  calWeeks,
 		MonthlyProfit:          fmt.Sprintf("$%.2f", monthlyProfit),
@@ -150,6 +155,7 @@ func (c *MonthlyCalendar) Draw(w io.Writer) error {
 		TotalTrades:            monthlyTrades,
 		DailyAvg:               dailyAvg,
 		DailyTrades:            monthlyTrades / daysTraded,
+		AverageShares:          fmt.Sprintf("%d", (monthlyShares / monthlyTrades)),
 	}
 
 	tmpl.Execute(w, data)
